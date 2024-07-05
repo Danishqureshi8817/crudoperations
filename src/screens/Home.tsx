@@ -110,7 +110,7 @@ const Home = () => {
           style={{ flex: 1, marginTop: moderateScale(15) }}
           showsVerticalScrollIndicator={false}
           onEndReached={() => useGetAllProductsInfintQuery?.fetchNextPage()}
-          keyExtractor={(item, index) => item?._id?.toString()}
+          keyExtractor={(item, index) => index?.toString()}
           contentContainerStyle={{ flexGrow: 1 }}
 
           ListEmptyComponent={() => {

@@ -6,5 +6,7 @@ export default {
   HOME:"home",
   OTPVERIFY:'OtpVerification',
   EDIT:'edit',
-  ShowProduct : 'ShowProduct'
+  ShowProduct : 'ShowProduct',
+  ForgetPassword : 'forgetPassword',
+  CreateNewPassword : 'CreateNewPassword'
 }

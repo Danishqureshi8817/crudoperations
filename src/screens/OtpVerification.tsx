@@ -13,6 +13,8 @@ import { Container } from '../components/Container/Container';
 import { showError, showSucess } from '../utiles/helpers';
 import useLoginOtpVerify from '../hooks/auth/otp-verify';
 import { AuthContext } from '../utiles/authContext';
+import useForgetPasswordverifyEmailOtp from '../hooks/auth/forget-otp-verify';
+import navigationStrings from '../navigation/navigationStrings';
 
 const OtpVerification = () => {
 
@@ -20,7 +22,7 @@ const OtpVerification = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const input = useRef(null)
     const route = useRoute()
-    const { useremail }: any = route.params
+    const { useremail, type }: any = route.params
     const authContext: any = useContext(AuthContext);
 
     // states
@@ -30,11 +32,12 @@ const OtpVerification = () => {
 
     // api call
     const useLoginOtpVerifyMutation = useLoginOtpVerify()
+    const useForgetPasswordverifyEmailOtpMutation = useForgetPasswordverifyEmailOtp()
 
     const handleCellTextChange = async (text: String, i: number) => {
 
     };
-console.log(authContext);
+    console.log(authContext);
 
     const onDone = async () => {
         if (otpInput === '') {
@@ -44,8 +47,9 @@ console.log(authContext);
                 email: useremail,
                 otp: otpInput
             }
+            console.log(payload);
 
-            useLoginOtpVerifyMutation.mutate(payload, {
+            type === 'login' ? useLoginOtpVerifyMutation.mutate(payload, {
                 onSuccess: (data) => {
                     showSucess('Login Successfully')
 
@@ -57,6 +61,24 @@ console.log(authContext);
                             authenticated: true,
                         })
 
+                    }
+                    navigation.navigate(navigationStrings.HOME)
+                }
+            }) : useForgetPasswordverifyEmailOtpMutation.mutate(payload, {
+                onSuccess: (data) => {
+                    showSucess('Verified Successfully')
+                    console.log(data?.data, 'very emmm op');
+
+
+                    if (data?.data?.message === 'Successfully saved') {
+
+                        authContext.setAuthState({
+                            accessToken: data?.data?.token,
+                            name: data?.data?.name,
+                            authenticated: true,
+                        })
+
+                        navigation.navigate(navigationStrings.CreateNewPassword, { useremail: useremail })
                     }
 
                 }
@@ -99,8 +121,8 @@ console.log(authContext);
                             <ButtonComp
                                 text={"Verify"}
                                 onPress={onDone}
-                                isLoading={useLoginOtpVerifyMutation?.isPending}
-                                disabled={useLoginOtpVerifyMutation.isPending}
+                                isLoading={useLoginOtpVerifyMutation?.isPending || useForgetPasswordverifyEmailOtpMutation.isPending}
+                                disabled={useLoginOtpVerifyMutation.isPending || useForgetPasswordverifyEmailOtpMutation.isPending}
                             />
                         </View>
                     </View>

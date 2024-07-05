@@ -1,18 +1,19 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { ParamListBase, useNavigation } from '@react-navigation/native'
 
 import { Container } from '../components/Container/Container'
 import ButtonComp from '../components/Button/Button'
-import { moderateScale, moderateScaleVertical, textScale, verticalScale } from '../styles/responsiveSize'
+import { moderateScale, moderateScaleVertical, textScale } from '../styles/responsiveSize'
 import colors from '../styles/colors'
 import TextInputComp from '../components/TextInput/TextInput'
 import navigationStrings from '../navigation/navigationStrings'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import useLoginByEmail from '../hooks/auth/login-by-email'
 import { showError, showSucess } from '../utiles/helpers'
+import useForgetPasswordEmailVerify from '../hooks/auth/forget-email-verify'
 
-const Login = () => {
+const ForgetPassword = () => {
 
   // init
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -23,30 +24,32 @@ const Login = () => {
   const [secureText, setSecureText] = useState(true);
 
   // api call
-  const useLoginByEmailMutation = useLoginByEmail()
+  const useForgetPasswordEmailVerifyMutation = useForgetPasswordEmailVerify()
 
   const onSubmit = () => {
     // navigation.navigate(navigationStrings.OTPVERIFY,{useremail:email})
     if (email === '') {
       showError('please enter email')
 
-    } else if (password === '') {
-      showError('please enter password')
-
     } else {
       const payload = {
         email: email,
-        password: password
       }
       console.log(payload);
 
-      useLoginByEmailMutation.mutate(payload, {
-        onSuccess: (data) => {
-          showSucess('Login Successfully')
-          navigation.navigate(navigationStrings.OTPVERIFY, { useremail: email ,type:'login'})
+      useForgetPasswordEmailVerifyMutation.mutate(payload,
+        {
+          onSuccess:(data)=>{
+           if (data?.data?.message === 'Successfully Confirm') {
+
+              navigation.navigate(navigationStrings.OTPVERIFY, { useremail: email, type: 'forget' })
+              showSucess('OTP Sent')
+
+            }
+          }
         }
-      })
-    }
+      )
+     }
 
   }
 
@@ -56,7 +59,7 @@ const Login = () => {
 
         <Text style={styles.headerStyle}>Welcome</Text>
         <Text style={{ fontSize: textScale(22), color: colors.whiteColor, marginTop: moderateScale(15) }}>Crud Operation Task</Text>
-        <Text style={styles.descStyle}>We are happy to see. You can login to continue</Text>
+        <Text style={styles.descStyle}>Forget Password</Text>
 
         <View style={{ marginTop: moderateScale(150) }}>
           <TextInputComp
@@ -65,20 +68,8 @@ const Login = () => {
             onChangeText={(value: string) => setEmail(value)}
             keyboardType='email-address'
           />
-          <TextInputComp
-            value={password}
-            placeholder={'Enter Password'}
-            onChangeText={(value: string) => setPassword(value)}
-            secureTextEntry={secureText}
-            secureText={secureText ? 'Show' : 'Hide'}
-            onPressSecure={() => { setSecureText(!secureText) }}
 
-          />
-
-          <TouchableOpacity style={{marginVertical:verticalScale(10),alignSelf:'flex-end'}} onPress={()=>{navigation.navigate(navigationStrings.ForgetPassword)}}>
-            <Text style={{color:colors.whiteColor,fontSize:textScale(16)}}>Forget Password</Text>
-          </TouchableOpacity>
-          <ButtonComp onPress={() => { onSubmit() }} text='Login' style={{ width: moderateScale(340), }} isLoading={useLoginByEmailMutation?.isPending} disabled={useLoginByEmailMutation?.isPending} />
+          <ButtonComp onPress={() => { onSubmit() }} text='Forget Password' style={{ width: moderateScale(340), }} isLoading={useForgetPasswordEmailVerifyMutation?.isPending} disabled={useForgetPasswordEmailVerifyMutation?.isPending} />
         </View>
 
       </View>
@@ -87,7 +78,7 @@ const Login = () => {
   )
 }
 
-export default Login
+export default ForgetPassword
 
 const styles = StyleSheet.create({
   headerStyle: {
@@ -97,7 +88,7 @@ const styles = StyleSheet.create({
 
   },
   descStyle: {
-    fontSize: textScale(12),
+    fontSize: textScale(16),
     marginTop: moderateScaleVertical(8),
     color: colors.whiteColor,
   }

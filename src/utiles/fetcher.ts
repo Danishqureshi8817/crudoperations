@@ -29,7 +29,7 @@ export const fetcher = async (config: AxiosRequestConfig) => {
     data,
     ...config,
     headers: {
-      Authorization: token ? `${token}` : '',
+      Authorization: !!token ? `${token}` : '',
       // Authorization: `Bearer ${token}`,
       ...config?.headers,
       ...headers,
